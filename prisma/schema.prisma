@@ -1,0 +1,158 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Product {
+  id           String       @id @default(cuid())
+  name         String       @unique
+  slug         String       @unique
+  price        Float
+  manufacturer String
+  count        Int
+  category     String?
+  image        String?
+  inStock      Boolean?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  cpu          cpu?
+  gpu          gpu?
+  motherboard  motherboard?
+  memory       memory?
+  cooler       cooler?
+  storage      storage?
+  powersupply  powersupply?
+  case         Case?
+
+  @@index([slug])
+}
+
+model gpu {
+  productId  String   @unique
+  product    Product  @relation(fields: [productId], references: [id])
+  chipset    String?
+  memory     Int?
+  coreClock  Int?
+  boostClock Int?
+  color      String?
+  length     Int?
+  rating     Int?
+  TDP        Int?
+  inStock    Boolean?
+  count      Int?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model cpu {
+  productId         String   @unique
+  product           Product  @relation(fields: [productId], references: [id])
+  microarchitecture String?
+  coreCount         Int?
+  coreClock         Int?
+  boostClock        Int?
+  rating            Int?
+  inStock           Boolean?
+  count             Int?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model motherboard {
+  productId   String   @unique
+  product     Product  @relation(fields: [productId], references: [id])
+  socket      String?
+  formFactor  String?
+  memory      Int?
+  memorySlots Int?
+  coreClock   Int?
+  boostClock  Int?
+  color       String?
+  rating      Int?
+  inStock     Boolean?
+  count       Int?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model memory {
+  productId         String   @unique
+  product           Product  @relation(fields: [productId], references: [id])
+  speed             String?
+  modules           String?
+  firstworldlatency Int?
+  CASLatency        Int?
+  rating            Int?
+  inStock           Boolean?
+  count             Int?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model cooler {
+  productId String   @unique
+  product   Product  @relation(fields: [productId], references: [id])
+  TDP       Int?
+  RPM       Int?
+  noise     Float?
+  color     String?
+  size      Int?
+  rating    Int?
+  inStock   Boolean?
+  count     Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model storage {
+  productId  String   @unique
+  product    Product  @relation(fields: [productId], references: [id])
+  capacity   String?
+  type       String?
+  cache      Int?
+  formFactor String?
+  interface  String?
+  rating     Int?
+  inStock    Boolean?
+  count      Int?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model powersupply {
+  productId  String   @unique
+  product    Product  @relation(fields: [productId], references: [id])
+  type       String?
+  efficiency String?
+  wattage    Int?
+  Modular    String?
+  color      String?
+  rating     Int?
+  inStock    Boolean?
+  count      Int?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Case {
+  productId      String   @unique
+  product        Product  @relation(fields: [productId], references: [id])
+  type           String?
+  color          String?
+  powersupply    Int?
+  sidePanel      String?
+  externalVolume Float?
+  internalBay    Int?
+  rating         Int?
+  inStock        Boolean?
+  count          Int?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
