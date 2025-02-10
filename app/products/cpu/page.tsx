@@ -14,6 +14,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ShoppingCart, Wrench } from "lucide-react"; // Add these icons
+import { useRouter } from "next/navigation";
 
 // Add interface for CPU type
 interface CPU {
@@ -40,6 +41,7 @@ export default function CPUPage() {
     sockets: new Set<string>(),
   });
   const [sortBy, setSortBy] = useState<string>("featured");
+  const router = useRouter();
 
   // Add function to toggle filters
   const toggleFilter = (type: keyof typeof filters, value: string | number) => {
@@ -133,6 +135,33 @@ export default function CPUPage() {
   if (loading) {
     return <div>Loading...</div>;
   }
+
+  const handleAddToBuild = async (e: React.MouseEvent, cpu: CPU) => {
+    e.preventDefault(); // Prevent the link navigation
+    e.stopPropagation(); // Stop event bubbling
+
+    try {
+      // Store CPU data in localStorage
+      localStorage.setItem(
+        "cpu",
+        JSON.stringify({
+          name: cpu.name,
+          price: cpu.price,
+          image: cpu.image,
+          specs: {
+            cores: cpu.cpu?.coreCount,
+            clock: cpu.cpu?.coreClock,
+            socket: cpu.cpu?.socket,
+          },
+        })
+      );
+
+      // Navigate to builder page
+      await router.push("/builder");
+    } catch (error) {
+      console.error("Error adding to build:", error);
+    }
+  };
 
   return (
     <div className="container mx-auto py-8">
@@ -281,7 +310,12 @@ export default function CPUPage() {
                         </div>
                       )}
                       <div className="flex gap-2 mt-4">
-                        <Button variant="outline" size="sm" className="flex-1">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="flex-1"
+                          onClick={(e) => handleAddToBuild(e, cpu)}
+                        >
                           <Wrench className="w-4 h-4 mr-2" />
                           Add to Build
                         </Button>

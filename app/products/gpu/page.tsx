@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
 import {
@@ -39,6 +40,7 @@ export default function GPUPage() {
     tdpRange: new Set<string>(),
   });
   const [sortBy, setSortBy] = useState<string>("featured");
+  const router = useRouter();
 
   // Add function to toggle filters
   const toggleFilter = (type: keyof typeof filters, value: string | number) => {
@@ -70,7 +72,6 @@ export default function GPUPage() {
         }
 
         const data = await response.json();
-        console.log("Loaded GPUs:", data); // Debug log
         setGpus(data);
       } catch (error) {
         console.error("Error loading GPUs:", error);
@@ -127,6 +128,33 @@ export default function GPUPage() {
           return 0;
       }
     });
+
+  const handleAddToBuild = async (e: React.MouseEvent, gpu: GPU) => {
+    e.preventDefault(); // Prevent the link navigation
+    e.stopPropagation(); // Stop event bubbling
+
+    try {
+      // Store gpu data in localStorage
+      localStorage.setItem(
+        "gpu",
+        JSON.stringify({
+          name: gpu.name,
+          price: gpu.price,
+          image: gpu.image,
+          specs: {
+            TDP: gpu.gpu?.TDP,
+            clock: gpu.gpu?.coreClock,
+            memory: gpu.gpu?.memory,
+          },
+        })
+      );
+
+      // Navigate to builder page
+      await router.push("/builder");
+    } catch (error) {
+      console.error("Error adding to build:", error);
+    }
+  };
 
   return (
     <div className="container mx-auto py-8">
@@ -262,7 +290,12 @@ export default function GPUPage() {
                         </div>
                       )}
                       <div className="flex gap-2 mt-4">
-                        <Button variant="outline" size="sm" className="flex-1">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="flex-1"
+                          onClick={(e) => handleAddToBuild(e, gpu)}
+                        >
                           <Wrench className="w-4 h-4 mr-2" />
                           Add to Build
                         </Button>
