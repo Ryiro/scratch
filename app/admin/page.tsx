@@ -34,9 +34,20 @@ import Image from "next/image";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Search, Save } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Textarea } from "@/components/ui/textarea";
 import { ClockIcon, PackageIcon, UserIcon } from "lucide-react"; // Add these imports
 import { ScrollArea } from "@/components/ui/scroll-area";
+
+interface StockUpdatePayload {
+  count: number;
+  inStock: boolean;
+}
+
+interface ApiResponse {
+  id: string;
+  count: number;
+  inStock: boolean;
+  // ...other product fields
+}
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters" }),
@@ -79,8 +90,8 @@ export default function AdminPage() {
     image?: string;
     inStock: boolean;
     count?: number;
-    description?: string;
     category: string;
+    // removed description field
   }
 
   const [searchResults, setSearchResults] = useState<Product[]>([]);
@@ -290,35 +301,32 @@ export default function AdminPage() {
   };
 
   const handleStockUpdate = async (type: "add" | "remove") => {
-    if (!selectedProduct) return;
+    if (!selectedProduct?.id) return;
 
-    const currentCount = selectedProduct.count || 0; // Changed from stockCount
-    let newCount: number;
-
-    if (type === "add" && addCount > 0) {
-      newCount = currentCount + addCount;
-    } else if (type === "remove" && removeCount > 0) {
-      newCount = Math.max(0, currentCount - removeCount); // Prevent negative stock
-    } else {
-      return;
-    }
+    const currentCount = selectedProduct.count || 0;
+    const newCount =
+      type === "add"
+        ? currentCount + addCount
+        : Math.max(0, currentCount - removeCount);
 
     setIsSaving(true);
     try {
+      const payload: StockUpdatePayload = {
+        count: newCount,
+        inStock: newCount > 0,
+      };
+
       const response = await fetch(`/api/products/${selectedProduct.id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          count: newCount, // Changed from stockCount
-          inStock: newCount > 0,
-        }),
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) throw new Error("Failed to update stock");
 
-      const updatedProduct = await response.json();
+      const updatedProduct: ApiResponse = await response.json();
 
       // Update the search results
       setSearchResults((prev) =>
@@ -513,7 +521,7 @@ export default function AdminPage() {
                         )}
                         {selectedFile && (
                           <p className="text-sm text-muted-foreground">
-                            Selected: {selectedFile.name}
+                            Selected: {selectedFile?.name}
                           </p>
                         )}
                       </div>
@@ -731,18 +739,6 @@ export default function AdminPage() {
                       Remove Stock
                     </Button>
                   </div>
-
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Description</label>
-                    <Textarea
-                      value={
-                        editedProduct.description ?? selectedProduct.description
-                      }
-                      onChange={(e) =>
-                        handleProductEdit("description", e.target.value)
-                      }
-                    />
-                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -858,18 +854,17 @@ export default function AdminPage() {
                           <span className="text-sm">John Doe</span>
                         </div>
 
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <ClockIcon className="h-4 w-4 text-muted-foreground" />
-                            <span className="text-sm font-medium">Time:</span>
-                          </div>
-                          <span className="text-sm">2024-02-20 14:30</span>
+                        <div className="flex items-center justify-between"></div>
+                        <div className="flex items-center gap-2">
+                          <ClockIcon className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-sm font-medium">Time:</span>
                         </div>
+                        <span className="text-sm">2024-02-20 14:30</span>
+                      </div>
 
-                        <div className="flex items-center justify-between pt-2 border-t">
-                          <span className="text-sm font-medium">Amount:</span>
-                          <span className="text-sm font-bold">₹45,999</span>
-                        </div>
+                      <div className="flex items-center justify-between pt-2 border-t">
+                        <span className="text-sm font-medium">Amount:</span>
+                        <span className="text-sm font-bold">₹45,999</span>
                       </div>
                     </CardContent>
                   </Card>
@@ -934,18 +929,29 @@ export default function AdminPage() {
                           <span className="text-sm">John Doe</span>
                         </div>
 
+                        <div className="flex items-center justify-between"></div>
+                        <div className="flex items-center gap-2"></div>
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
-                            <ClockIcon className="h-4 w-4 text-muted-foreground" />
-                            <span className="text-sm font-medium">Time:</span>
+                            <UserIcon className="h-4 w-4 text-muted-foreground" />
+                            <span className="text-sm font-medium">
+                              Customer:
+                            </span>
                           </div>
-                          <span className="text-sm">2024-02-20 14:30</span>
+                          <span className="text-sm">John Doe</span>
                         </div>
 
-                        <div className="flex items-center justify-between pt-2 border-t">
-                          <span className="text-sm font-medium">Amount:</span>
-                          <span className="text-sm font-bold">₹45,999</span>
+                        <div className="flex items-center justify-between"></div>
+                        <div className="flex items-center gap-2">
+                          <ClockIcon className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-sm font-medium">Time:</span>
                         </div>
+                        <span className="text-sm">2024-02-20 14:30</span>
+                      </div>
+
+                      <div className="flex items-center justify-between pt-2 border-t">
+                        <span className="text-sm font-medium">Amount:</span>
+                        <span className="text-sm font-bold">₹45,999</span>
                       </div>
                     </CardContent>
                   </Card>
