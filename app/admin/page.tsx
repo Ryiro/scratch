@@ -627,7 +627,9 @@ export default function AdminPage() {
           {selectedProduct && (
             <Card className="mt-4">
               <CardHeader className="flex flex-row items-center justify-between">
-                <h3 className="text-xl font-bold">Edit Product</h3>
+                <h3 className="text-xl font-bold">
+                  Edit {selectedProduct.name}
+                </h3>
                 <Button
                   onClick={handleSaveChanges}
                   disabled={isSaving || Object.keys(editedProduct).length === 0}
