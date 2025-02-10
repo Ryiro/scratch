@@ -1,10 +1,15 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function BuilderPage() {
-  // State to hold the random URL
+  const router = useRouter();
+
   const [randomUrl, setRandomUrl] = useState("");
+  const [selectedProducts, setSelectedProducts] = useState<
+    Record<string, { name: string }>
+  >({});
 
   // Generate random URL on mount
   useEffect(() => {
@@ -84,7 +89,34 @@ export default function BuilderPage() {
                     {category}
                   </Link>
                 </td>
-                <td className="px-6 py-4">Product selection</td>
+                <td className="px-6 py-4">
+                  {selectedProducts[category] ? (
+                    <div className="flex items-center justify-between">
+                      <span>{selectedProducts[category]?.name}</span>
+                      <button
+                        onClick={() => {
+                          setSelectedProducts((prev) => {
+                            const newState = { ...prev };
+                            delete newState[category];
+                            return newState;
+                          });
+                        }}
+                        className="text-red-500 ml-2"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => {
+                        router.push(`/products/${category.toLowerCase()}`);
+                      }}
+                      className="px-2 py-1 bg-green-500 text-white rounded"
+                    >
+                      Add Product
+                    </button>
+                  )}
+                </td>
                 <td className="px-6 py-4">$0</td>
                 <td className="px-6 py-4">Placeholder</td>
                 <td className="px-6 py-4">Placeholder</td>

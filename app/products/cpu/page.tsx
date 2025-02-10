@@ -12,6 +12,8 @@ import {
 } from "@/components/ui/select";
 import Image from "next/image";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { ShoppingCart, Wrench } from "lucide-react"; // Add these icons
 
 // Add interface for CPU type
 interface CPU {
@@ -278,6 +280,16 @@ export default function CPUPage() {
                           <p>Architecture: {cpu.cpu.microarchitecture}</p>
                         </div>
                       )}
+                      <div className="flex gap-2 mt-4">
+                        <Button variant="outline" size="sm" className="flex-1">
+                          <Wrench className="w-4 h-4 mr-2" />
+                          Add to Build
+                        </Button>
+                        <Button variant="default" size="sm" className="flex-1">
+                          <ShoppingCart className="w-4 h-4 mr-2" />
+                          Add to Cart
+                        </Button>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
