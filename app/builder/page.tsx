@@ -92,7 +92,7 @@ export default function BuilderPage() {
                 <td className="px-6 py-4">
                   {selectedProducts[category] ? (
                     <div className="flex items-center justify-between">
-                      <span>{selectedProducts[category]?.name}</span>
+                      <span>{selectedProducts[category].name}</span>
                       <button
                         onClick={() => {
                           setSelectedProducts((prev) => {
